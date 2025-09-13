@@ -85,8 +85,8 @@ class FacebookProfile {
         const titleElement = document.getElementById('main-title');
         const subtitleElement = document.getElementById('subtitle');
         
-        const titleText = 'KIDD';
-        const subtitleText = 'FROM HERMANO SYN';
+        const titleText = 'SOL';
+        const subtitleText = 'loves you all<3';
         
         let titleIndex = 0;
         let subtitleIndex = 0;
@@ -438,7 +438,7 @@ class FacebookProfile {
 // Facebook Profile Configuration
 const FACEBOOK_CONFIG = {
     name: 'Mark Sollestre', // Your display name
-    profilePicture: 'https://github.com/KIDDASS/kiddd//main/image.png', // Your profile picture URL
+    profilePicture: 'https://github.com/KIDDASS/kiddd/raw/main/image.png', // Your profile picture URL
     location: 'Philippines', // Your location
     friendsCount: 505, // Number of friends (will animate to this number)
     profileUrl: 'https://www.facebook.com/solllzzz', // Your Facebook profile URL
