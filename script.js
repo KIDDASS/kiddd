@@ -1,6 +1,6 @@
-class DiscordProfile {
-    constructor(userId) {
-        this.userId = userId;
+class FacebookProfile {
+    constructor(facebookUserId) {
+        this.facebookUserId = facebookUserId;
         this.cursor = document.querySelector('.cursor');
         this.bgMusic = document.getElementById('bg-music');
         this.bgVideo = document.getElementById('bg-video');
@@ -19,16 +19,11 @@ class DiscordProfile {
         this.setupMusic();
         this.setupAudioPlayer();
         this.setupVideoBackground();
-        this.fetchDiscordData();
-        
-        // Refresh data every 30 seconds
-        setInterval(() => this.fetchDiscordData(), 30000);
+        this.setupFacebookProfile();
     }
 
     setupVideoBackground() {
-        // Set video source from GitHub
         if (GITHUB_VIDEO_URL) {
-            // Create source elements for different formats
             const mp4Source = this.bgVideo.querySelector('source[type="video/mp4"]');
             const webmSource = this.bgVideo.querySelector('source[type="video/webm"]');
             
@@ -45,7 +40,6 @@ class DiscordProfile {
             this.cursor.style.top = e.clientY + 'px';
         });
 
-        // Add hover effects for interactive elements
         const interactiveElements = document.querySelectorAll('a, .avatar, .enter-btn, .audio-btn, .minimize-btn');
         
         interactiveElements.forEach(el => {
@@ -64,19 +58,15 @@ class DiscordProfile {
         const introScreen = document.getElementById('intro-screen');
         const mainContent = document.getElementById('main-content');
 
-        // Start typing effect when page loads
         this.startTypingEffect();
 
         enterBtn.addEventListener('click', () => {
-            // Hide intro screen
             introScreen.classList.add('hidden');
             
-            // Show main content, audio player, and video background
             setTimeout(() => {
                 mainContent.classList.add('visible');
                 document.getElementById('audio-player').classList.add('visible');
                 
-                // Show video background if available
                 if (GITHUB_VIDEO_URL) {
                     this.bgVideo.classList.add('visible');
                     this.bgVideo.play().catch(error => {
@@ -86,7 +76,7 @@ class DiscordProfile {
                 
                 document.body.style.overflow = 'auto';
                 this.createParticles();
-                this.playMusic(); // Auto-play background music
+                this.playMusic();
             }, 500);
         });
     }
@@ -101,7 +91,6 @@ class DiscordProfile {
         let titleIndex = 0;
         let subtitleIndex = 0;
         
-        // Type main title
         const typeTitle = () => {
             if (titleIndex < titleText.length) {
                 titleElement.textContent = titleText.slice(0, titleIndex + 1);
@@ -114,7 +103,6 @@ class DiscordProfile {
             }
         };
         
-        // Type subtitle
         const typeSubtitle = () => {
             if (subtitleIndex < subtitleText.length) {
                 subtitleElement.textContent = subtitleText.slice(0, subtitleIndex + 1);
@@ -126,7 +114,6 @@ class DiscordProfile {
             }
         };
         
-        // Start typing after a short delay
         setTimeout(typeTitle, 1000);
     }
 
@@ -138,7 +125,6 @@ class DiscordProfile {
         const volumeSlider = document.getElementById('volume-slider');
         const minimizeBtn = document.getElementById('minimize-btn');
 
-        // Use the same audio element as background music (synchronize them)
         this.audioPlayer = this.bgMusic;
         
         if (this.audioPlayer) {
@@ -146,21 +132,18 @@ class DiscordProfile {
             this.updateAudioInfo();
         }
 
-        // Minimize button (check if exists)
         if (minimizeBtn) {
             minimizeBtn.addEventListener('click', () => {
                 this.toggleMinimize();
             });
         }
 
-        // Play/Pause button
         if (playPauseBtn) {
             playPauseBtn.addEventListener('click', () => {
                 this.toggleAudioPlayer();
             });
         }
 
-        // Previous and Next buttons
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
                 console.log('Previous track');
@@ -173,7 +156,6 @@ class DiscordProfile {
             });
         }
 
-        // Progress slider
         if (progressSlider) {
             progressSlider.addEventListener('input', (e) => {
                 if (this.audioPlayer && this.duration) {
@@ -183,7 +165,6 @@ class DiscordProfile {
             });
         }
 
-        // Volume slider
         if (volumeSlider) {
             volumeSlider.addEventListener('input', (e) => {
                 if (this.audioPlayer) {
@@ -192,7 +173,6 @@ class DiscordProfile {
             });
         }
 
-        // Audio player event listeners
         if (this.audioPlayer) {
             this.audioPlayer.addEventListener('loadedmetadata', () => {
                 this.duration = this.audioPlayer.duration;
@@ -315,7 +295,6 @@ class DiscordProfile {
     }
 
     setupMusic() {
-        // Set music source from GitHub
         if (GITHUB_MUSIC_URL && this.bgMusic) {
             this.bgMusic.src = GITHUB_MUSIC_URL;
         }
@@ -336,7 +315,7 @@ class DiscordProfile {
         const container = document.querySelector('.particles-container');
         if (!container) return;
         
-        for (let i = 0; i < 30; i++) { // Reduced particle count for mobile performance
+        for (let i = 0; i < 30; i++) {
             const particle = document.createElement('div');
             particle.classList.add('particle');
             
@@ -356,121 +335,87 @@ class DiscordProfile {
         }
     }
 
-    async fetchDiscordData() {
-        if (!this.userId || this.userId === 'YOUR_DISCORD_USER_ID') {
-            this.updateProfile({
-                discord_user: {
-                    username: 'KIDD',
-                    discriminator: '0001',
-                    avatar: null
-                },
-                discord_status: 'online',
-                activities: []
-            });
-            return;
-        }
+    setupFacebookProfile() {
+        // Since Facebook API has strict limitations, we'll use static data
+        // You can customize this information manually
+        this.updateProfile({
+            name: FACEBOOK_CONFIG.name || 'KIDD',
+            profilePicture: FACEBOOK_CONFIG.profilePicture || 'https://via.placeholder.com/150x150/1877f2/ffffff?text=FB',
+            location: FACEBOOK_CONFIG.location || 'Philippines',
+            friendsCount: FACEBOOK_CONFIG.friendsCount || 'Loading...',
+            isOnline: true
+        });
 
-        try {
-            const response = await fetch(`https://api.lanyard.rest/v1/users/${this.userId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                this.updateProfile(data.data);
-            } else {
-                throw new Error('Failed to fetch user data');
-            }
-        } catch (error) {
-            console.error('Error fetching Discord data:', error);
-            this.updateProfile({
-                discord_user: {
-                    username: 'KIDD',
-                    discriminator: '0000',
-                    avatar: null
-                },
-                discord_status: 'offline',
-                activities: []
-            });
-        }
+        // Simulate fetching friends count (this would normally come from Facebook API)
+        setTimeout(() => {
+            this.simulateFriendsCount();
+        }, 2000);
     }
 
     updateProfile(data) {
         // Update avatar
         const avatar = document.getElementById('avatar');
-        if (avatar) {
-            const avatarUrl = data.discord_user.avatar 
-                ? `https://cdn.discordapp.com/avatars/${this.userId}/${data.discord_user.avatar}.png?size=256`
-                : `https://cdn.discordapp.com/embed/avatars/${data.discord_user.discriminator % 5}.png`;
-            avatar.src = avatarUrl;
+        if (avatar && data.profilePicture) {
+            avatar.src = data.profilePicture;
         }
 
-        // Update username and discriminator
+        // Update username
         const username = document.getElementById('username');
-        const discriminator = document.getElementById('discriminator');
-        
-        if (username) username.textContent = data.discord_user.username;
-        if (discriminator) discriminator.textContent = `#${data.discord_user.discriminator}`;
+        if (username && data.name) {
+            username.textContent = data.name;
+        }
 
-        // Update status
+        // Update location
+        const location = document.getElementById('location');
+        if (location && data.location) {
+            location.textContent = data.location;
+        }
+
+        // Update friends count
+        const friendsCount = document.getElementById('friends-count');
+        if (friendsCount && data.friendsCount) {
+            friendsCount.textContent = data.friendsCount;
+        }
+
+        // Update status indicator
         const statusIndicator = document.getElementById('status-indicator');
-        const statusText = document.getElementById('status-text');
-        
-        if (statusIndicator) statusIndicator.className = `status-indicator ${data.discord_status}`;
-        if (statusText) statusText.textContent = this.capitalizeFirst(data.discord_status);
+        if (statusIndicator) {
+            statusIndicator.style.background = data.isOnline ? '#42b883' : '#gray';
+        }
 
-        // Update custom status
-        this.updateCustomStatus(data);
+        // Update Facebook link
+        const facebookLink = document.getElementById('facebook-link');
+        if (facebookLink && FACEBOOK_CONFIG.profileUrl) {
+            facebookLink.href = FACEBOOK_CONFIG.profileUrl;
+        }
 
-        // Update activities
-        this.updateActivities(data.activities || []);
-
-        // Update Discord link
-        const discordLink = document.getElementById('discord-link');
-        if (discordLink) discordLink.href = `https://discord.com/users/${this.userId}`;
-    }
-
-    updateCustomStatus(data) {
-        const customStatus = document.getElementById('custom-status');
-        const statusEmoji = document.getElementById('status-emoji');
-        const statusMessage = document.getElementById('status-message');
-
-        if (!customStatus || !statusEmoji || !statusMessage) return;
-
-        const customActivity = data.activities?.find(activity => activity.type === 4);
-        
-        if (customActivity) {
-            statusEmoji.textContent = customActivity.emoji?.name || '';
-            statusMessage.textContent = customActivity.state || '';
-            customStatus.style.display = 'block';
-        } else {
-            customStatus.style.display = 'none';
+        // Update Instagram link if provided
+        const instagramLink = document.getElementById('instagram-link');
+        if (instagramLink && FACEBOOK_CONFIG.instagramUrl) {
+            instagramLink.href = FACEBOOK_CONFIG.instagramUrl;
         }
     }
 
-    updateActivities(activities) {
-        const activitiesContainer = document.getElementById('activities');
-        if (!activitiesContainer) return;
+    simulateFriendsCount() {
+        // Simulate a realistic friends count animation
+        const friendsCountElement = document.getElementById('friends-count');
+        if (!friendsCountElement) return;
+
+        const targetCount = FACEBOOK_CONFIG.friendsCount || Math.floor(Math.random() * 500) + 200;
+        let currentCount = 0;
+        const increment = Math.ceil(targetCount / 50);
         
-        activitiesContainer.innerHTML = '';
-
-        const filteredActivities = activities.filter(activity => activity.type !== 4);
-
-        filteredActivities.forEach(activity => {
-            const activityEl = document.createElement('div');
-            activityEl.classList.add('activity');
-
-            let activityContent = `<div class="activity-name">${activity.name}</div>`;
-            
-            if (activity.details) {
-                activityContent += `<div class="activity-details-text">${activity.details}</div>`;
+        const countUp = () => {
+            if (currentCount < targetCount) {
+                currentCount = Math.min(currentCount + increment, targetCount);
+                friendsCountElement.textContent = `${currentCount} friends`;
+                setTimeout(countUp, 50);
+            } else {
+                friendsCountElement.textContent = `${targetCount} friends`;
             }
-            
-            if (activity.state) {
-                activityContent += `<div class="activity-state">${activity.state}</div>`;
-            }
-
-            activityEl.innerHTML = activityContent;
-            activitiesContainer.appendChild(activityEl);
-        });
+        };
+        
+        countUp();
     }
 
     displayImage(container, imageSrc) {
@@ -486,61 +431,112 @@ class DiscordProfile {
             container.classList.add('has-image');
         }
     }
-
-    capitalizeFirst(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
 }
 
-// ============ CONFIGURATION SECTION ============
+// ============ FACEBOOK CONFIGURATION SECTION ============
 
-// Replace 'YOUR_DISCORD_USER_ID' with your actual Discord user ID
-const DISCORD_USER_ID = '720887495923073044';
-
-// Add your GitHub music URL here (background music AND audio player will use the same file)
-const GITHUB_MUSIC_URL = 'https://github.com/KIDDASS/kiddd/raw/main/kiyo%20-%20Dantay%20FT.%20YZKK%20(OFFICIAL%20LYRIC%20VIDEO).mp3';
-
-// Add your GitHub video URL here (background video)
-const GITHUB_VIDEO_URL = 'https://github.com/KIDDASS/kiddd/raw/main/videoplayback.mp4';
-
-// Add your GitHub images here
-const GITHUB_IMAGES = {
-    container1: 'https://github.com/KIDDASS/MyWeb/raw/main/3dgifmaker36240%20(1).gif',
-    // container2: 'https://your-image-url-here.jpg' // Add second image if needed
+// Facebook Profile Configuration
+const FACEBOOK_CONFIG = {
+    name: 'Mark Sollestre', // Your display name
+    profilePicture: 'https://github.com/KIDDASS/kiddd//main/image.png', // Your profile picture URL
+    location: 'Philippines', // Your location
+    friendsCount: 505, // Number of friends (will animate to this number)
+    profileUrl: 'https://www.facebook.com/solllzzz', // Your Facebook profile URL
+    instagramUrl: 'https://www.instagram.com/trstdoz/', // Your Instagram URL (optional)
 };
 
-// Audio Player Configuration (using the same audio as background music)
+// GitHub Assets (same as before)
+const GITHUB_MUSIC_URL = 'https://github.com/KIDDASS/kiddd/raw/main/kiyo%20-%20Dantay%20FT.%20YZKK%20(OFFICIAL%20LYRIC%20VIDEO).mp3';
+const GITHUB_VIDEO_URL = 'https://github.com/KIDDASS/kiddd/raw/main/videoplayback.mp4';
+
+// GitHub Images
+const GITHUB_IMAGES = {
+    container1: 'https://github.com/KIDDASS/MyWeb/raw/main/3dgifmaker36240%20(1).gif',
+};
+
+// Audio Player Configuration
 const AUDIO_PLAYER_CONFIG = {
-    audioUrl: GITHUB_MUSIC_URL, // Using the same audio file as background music
-    title: 'DANTAY', // Change this to your song title
-    artist: 'KIYO', // Change this to your artist name
-    coverImage: 'https://github.com/KIDDASS/HERMANOSYN/raw/main/KIDD.jpg' // Add your cover image URL here (optional)
+    audioUrl: GITHUB_MUSIC_URL,
+    title: 'DANTAY',
+    artist: 'KIYO',
+    coverImage: 'https://github.com/KIDDASS/HERMANOSYN/raw/main/KIDD.jpg'
 };
 
 // ============ INITIALIZATION ============
 
-// Initialize the profile
-const discordProfile = new DiscordProfile(DISCORD_USER_ID);
+// Initialize the Facebook profile
+const facebookProfile = new FacebookProfile();
 
 // Auto-load GitHub images when page loads
 window.addEventListener('load', () => {
     if (GITHUB_IMAGES.container1) {
         const container1 = document.getElementById('container-1');
-        discordProfile.displayImage(container1, GITHUB_IMAGES.container1);
-    }
-    
-    if (GITHUB_IMAGES.container2) {
-        const container2 = document.getElementById('container-2');
-        discordProfile.displayImage(container2, GITHUB_IMAGES.container2);
+        facebookProfile.displayImage(container1, GITHUB_IMAGES.container1);
     }
 });
 
 // Handle window resize for mobile responsiveness
 window.addEventListener('resize', () => {
-    // Recreate particles if screen size changes significantly
     const particlesContainer = document.querySelector('.particles-container');
     if (particlesContainer && window.innerWidth > 480) {
         particlesContainer.innerHTML = '';
-        discordProfile.createParticles();
+        facebookProfile.createParticles();
     }
 });
+
+// ============ FACEBOOK API INTEGRATION (OPTIONAL) ============
+/*
+IMPORTANT NOTE: Facebook's API has very strict limitations for accessing personal profile data.
+Due to privacy policies, most personal information is not accessible through their API.
+
+If you want to try real Facebook integration, you would need to:
+
+1. Create a Facebook App at https://developers.facebook.com/
+2. Get approval for specific permissions (which is very difficult for personal data)
+3. Use Facebook SDK for JavaScript
+
+Here's a basic example of what Facebook SDK integration would look like:
+
+// Load Facebook SDK
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+// Initialize Facebook SDK
+window.fbAsyncInit = function() {
+    FB.init({
+        appId: 'YOUR_FACEBOOK_APP_ID',
+        cookie: true,
+        xfbml: true,
+        version: 'v18.0'
+    });
+};
+
+// Login and get basic info (very limited)
+function loginWithFacebook() {
+    FB.login(function(response) {
+        if (response.authResponse) {
+            FB.api('/me', {fields: 'name,picture'}, function(response) {
+                // Update profile with limited data
+                facebookProfile.updateProfile({
+                    name: response.name,
+                    profilePicture: response.picture.data.url
+                });
+            });
+        }
+    }, {scope: 'public_profile'});
+}
+
+However, this approach has major limitations:
+- Cannot access friends count
+- Cannot access posts or activities  
+- Requires app approval from Facebook
+- Limited to very basic public information
+
+For a personal profile site, using static configuration (as implemented above) 
+is much more practical and reliable.
+*/
